@@ -328,7 +328,11 @@ std::optional<InputBindingKey> EvdevInputSource::ParseKeyString(const std::strin
       if (abinding == axis.name)
       {
         key.source_subtype = InputSubclass::ControllerAxis;
-        key.negative = (binding[0] == '-');
+        if (binding[0] == '-') {
+            key.modifier = InputModifier::Negate;
+        } else {
+            key.modifier = InputModifier::None;
+        }
         key.data = axis.id;
         return key;
       }
@@ -365,7 +369,7 @@ std::string EvdevInputSource::ConvertKeyToString(InputBindingKey key)
         {
           if (static_cast<u32>(axis.id) == key.data)
           {
-            ret = fmt::format("{}/{}{}", cd->uniq, key.negative ? "-" : "+", axis.name);
+            ret = fmt::format("{}/{}{}", cd->uniq, key.modifier == InputModifier::Negate ? "-" : "+", axis.name);
             break;
           }
         }
